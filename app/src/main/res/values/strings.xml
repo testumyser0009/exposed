@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">XposedAlipay</string>
+    <string name="xposed_desc">支付宝账单信息获取</string>
+</resources>
