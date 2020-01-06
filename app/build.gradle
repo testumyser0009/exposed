@@ -9,12 +9,30 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        //ARouter
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [moduleName: project.getName()]
+                includeCompileClasspath true
+            }
+        }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+
+    dataBinding {
+        enabled = true
+    }
+    lintOptions {
+        abortOnError false
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -26,4 +44,47 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     compileOnly 'de.robv.android.xposed:api:82'
+
+
+    implementation "com.squareup.okhttp3:okhttp:3.9.0"
+    implementation "com.squareup.okhttp3:logging-interceptor:3.9.0"
+    implementation 'com.alibaba:fastjson:1.2.58'
+    implementation 'org.greenrobot:eventbus:3.1.1'
+
+
+
+    /*
+    * retrofit.runtime = "com.squareup.retrofit2:retrofit:$versions.retrofit"
+    retrofit.gson = "com.squareup.retrofit2:converter-gson:$versions.retrofit"
+    retrofit.adapter_rxjava2 = "com.squareup.retrofit2:adapter-rxjava2:$versions.retrofit"
+    * */
+    implementation "com.squareup.retrofit2:retrofit:2.3.0"
+    implementation "com.squareup.retrofit2:converter-gson:2.3.0"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:2.3.0"
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+
+    //Retrofit 日志打印
+//    implementation('com.github.ihsanbal:LoggingInterceptor:3.0.0') {
+//        exclude group: 'org.json', module: 'json'
+//    }
+
+    /*
+    * arouter.runtime = "com.alibaba:arouter-api:$versions.arouter_version"
+    arouter.compiler = "com.alibaba:arouter-compiler:$versions.arouter_processor_version"
+    * */
+    api "com.alibaba:arouter-api:1.2.4"
+    annotationProcessor "com.alibaba:arouter-compiler:1.1.4"
+
+    implementation "io.reactivex.rxjava2:rxjava:2.1.5"
+    implementation "io.reactivex.rxjava2:rxandroid:2.0.1"
+
+    implementation "com.squareup.retrofit2:retrofit:2.3.0"
+    implementation "com.squareup.retrofit2:converter-gson:2.3.0"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:2.3.0"
+
+//    api "com.alibaba:arouter-api:$versions.arouter_version"
+
+
+    /*加载动画*/
+    implementation 'com.wang.avi:library:2.1.3'
 }
