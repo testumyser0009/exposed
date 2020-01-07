@@ -8,8 +8,6 @@ import com.wz.xposedalipay.util.ApiConstants;
 import com.wz.xposedalipay.util.Constant;
 import com.wz.xposedalipay.util.SPUtils;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
@@ -175,7 +173,7 @@ public class ChangeUrlInterceptor implements Interceptor {
     }
 
 
-    public class CreateInterceptorExceptioin extends Error {
+    public class CreateInterceptorExceptioin extends Error{
         private int errorCode;
         private String retry_after;
 

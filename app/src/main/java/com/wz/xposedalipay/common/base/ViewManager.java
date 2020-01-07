@@ -15,7 +15,7 @@ import java.util.Stack;
 public class ViewManager {
 
     private static Stack<Activity> activityStack;
-    private static List<BaseFragment> fragmentList;
+//    private static List<BaseFragment> fragmentList;
 
     public static ViewManager getInstance() {
         return ViewManagerHolder.sInstance;
@@ -28,28 +28,7 @@ public class ViewManager {
     private ViewManager() {
     }
 
-    public void addFragment(int index, BaseFragment fragment) {
-        if (fragmentList == null) {
-            fragmentList = new ArrayList<>();
-        }
-        fragmentList.add(index, fragment);
-    }
 
-
-    public BaseFragment getFragment(int index) {
-        if (fragmentList != null) {
-            return fragmentList.get(index);
-        }
-        return null;
-    }
-
-
-    public List<BaseFragment> getAllFragment() {
-        if (fragmentList != null) {
-            return fragmentList;
-        }
-        return null;
-    }
 
 
     /**

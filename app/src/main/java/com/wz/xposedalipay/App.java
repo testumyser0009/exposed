@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.alibaba.android.arouter.launcher.ARouter;
-import com.wz.xposedalipay.common.base.Utils;
 
 /**
  * Created by dell on 2018/4/4.
@@ -25,7 +23,7 @@ public class App extends Application {
 //            ARouter.openDebug();
 //            ARouter.openLog();
 //        }
-        ARouter.init(this);
+//        ARouter.init(this);
 
 
         mApp = this;
@@ -37,6 +35,8 @@ public class App extends Application {
 
 
     private static App baseApplication;
+
+
 
     public static void dealAlipayConsultSetAmountResString(Context context, Intent intent) {
         String consultSetAmountResString = intent.getStringExtra("consultSetAmountResString");
