@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.wz.xposedalipay">
+    package="com.fd.xposed">
 
 
     <!-- 用于进行网络定位 -->
@@ -34,7 +34,7 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
-        android:name=".App"
+        android:name=".ASXApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -52,13 +52,16 @@
             android:name="xposedminversion"
             android:value="82" />
 
-        <activity android:name=".ui.LoginActivity">
+        <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity"/>
+        <activity android:name=".ui.LoginActivity"/>
+
     </application>
 
 </manifest>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <attr format="dimension" name="config_content_spacing_horizontal"/>
+    <attr format="dimension" name="config_content_spacing_vertical"/>
+    <color name="xui_config_color_light_blue">#299EE3</color>
+    <color name="xui_config_color_main_theme">@color/xui_config_color_light_blue</color>
+</resources>

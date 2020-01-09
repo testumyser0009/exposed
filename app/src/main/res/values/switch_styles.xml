@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- SwitchButton -->
+    <style name="SwitchButtonStyle">
+        <item name="android:paddingLeft">?attr/config_content_spacing_horizontal</item>
+        <item name="android:paddingRight">?attr/config_content_spacing_horizontal</item>
+        <item name="android:paddingTop">?attr/config_content_spacing_vertical</item>
+        <item name="android:paddingBottom">?attr/config_content_spacing_vertical</item>
+    </style>
+</resources>
