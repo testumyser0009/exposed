@@ -34,7 +34,8 @@ public class SubmitDataBroadcast extends BroadcastReceiver{
             String bankId = SPUtils.getSharedStringData(ASXApplication.getAppContext(), Constant.bankId);
             String token = SPUtils.getSharedStringData(ASXApplication.getAppContext(), Constant.Token);
             String data = intent.getStringExtra("sumitData");
-            EventBus.getDefault().post(new PayMentDataEvent("数据上传中。。。"));
+//            EventBus.getDefault().post(new PayMentDataEvent("数据上传中。。。"));
+
             FdKyAppDataRepository.submitData(codeId, bankId, token, data)
                     .subscribeOn(Schedulers.io())
                     .subscribeOn(AndroidSchedulers.mainThread())
@@ -42,7 +43,11 @@ public class SubmitDataBroadcast extends BroadcastReceiver{
                         @Override
                         public void accept(SubmitResponse submitResponse) throws Exception {
 //                            mUploadStatus.setText("上传成功");
-                            EventBus.getDefault().post(new PayMentDataEvent("上传成功"));
+                            if (submitResponse.getStatus().equals("1")) {
+                                EventBus.getDefault().post(new PayMentDataEvent("上传成功"));
+                            } else {
+                                EventBus.getDefault().post(new PayMentDataEvent(submitResponse.getMessage()));
+                            }
                         }
                     }, new Consumer<Throwable>() {
                         @Override

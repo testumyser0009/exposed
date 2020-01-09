@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 
@@ -17,6 +18,7 @@ import com.fd.xposed.network.repository.FdKyAppDataRepository;
 import com.fd.xposed.param.SubmitData;
 import com.fd.xposed.util.Constant;
 import com.fd.xposed.util.SPUtils;
+import com.fd.xposed.xposed.AliParamUtils;
 import com.fd.xposed.xposed.BillObject;
 import com.fd.xposed.xposed.boradcast.AlipayBroadcast;
 import com.fd.xposed.xposed.boradcast.PluginBroadcast;
@@ -24,12 +26,14 @@ import com.fd.xposed.xposed.boradcast.PluginBroadcast;
 import org.greenrobot.eventbus.EventBus;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -48,7 +52,8 @@ public class Main implements IXposedHookLoadPackage {
     public static Activity launcherActivity = null;
     private static AlipayBroadcast alipayBroadcast = null;
     private static LoadPackageParam m_lpparam = null;
-    private static ClassLoader mBillListActivityClassLoader;
+    public static ClassLoader mBillListActivityClassLoader = null;
+    public static Activity mBillListActivity = null;
 
     @Override
     public void handleLoadPackage(final LoadPackageParam lpparam) throws Throwable {
@@ -93,6 +98,7 @@ public class Main implements IXposedHookLoadPackage {
                     intentFilter.addAction(AlipayBroadcast.Alipay_Pay_Account);
                     intentFilter.addAction(AlipayBroadcast.CONSULT_SET_AMOUNT_RES_STRING_INTENT_FILTER_ACTION);
                     intentFilter.addAction(AlipayBroadcast.COOKIE_STR_INTENT_FILTER_ACTION);
+                    intentFilter.addAction(AlipayBroadcast.BillPageAppRefreshBrodCast);
                     launcherActivity.registerReceiver(alipayBroadcast, intentFilter);
                 }
             });
@@ -175,10 +181,13 @@ public class Main implements IXposedHookLoadPackage {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     log("ClassLoader000 ============ " + param.thisObject.getClass().getClassLoader().toString());
                     log("ClassLoader222 ============ " + param.thisObject.getClass().getName());
-                    Activity m_obj_activity = (Activity) param.thisObject;
-                    if (param.thisObject != null && param.thisObject.getClass().getName().contentEquals("com.alipay.mobile.Bill.list.ui.BillListActivity_")) {
+                    if (param.thisObject != null && param.thisObject.getClass().getName().contentEquals("com.alipay.mobile.bill.list.ui.BillListActivity_")) {
                         log("ClassLoader111 ============ " + param.thisObject.getClass().getClassLoader().toString());
-                        XposedHelpers.findAndHookMethod("com.alipay.mobile.Bill.list.ui.adapter.billListAdapter", param.thisObject.getClass().getClassLoader(), "a", List.class, new XC_MethodHook() {
+                        mBillListActivity = (Activity) param.thisObject;
+                        log("mBillListActivity ============ " + mBillListActivity);
+                        log("mBillListActivity ============ " + ((Activity) param.thisObject).toString());
+                        mBillListActivityClassLoader = mBillListActivity.getClass().getClassLoader();
+                        XposedHelpers.findAndHookMethod("com.alipay.mobile.bill.list.ui.adapter.BillListAdapter", param.thisObject.getClass().getClassLoader(), "a", List.class, new XC_MethodHook() {
                             @Override
                             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                                 log("com.alipay.mobile.bill.list.ui.adapter.BillListAdapter" + "a called" + "\n");
@@ -189,11 +198,40 @@ public class Main implements IXposedHookLoadPackage {
                                     List<Object> bList_obj = (List) billList;
                                     if (bList_obj != null) {
 //                                        log(bList_obj.toString());
-                                        sendBillListBroadCast(bList_obj, m_obj_activity); // 将账单数据列表通过广播发送回给插件程序
+                                        sendBillListBroadCast(bList_obj, mBillListActivity); // 将账单数据列表通过广播发送回给插件程序
+//                                        callMethod(mBillListActivity, "e");
                                     }
                                 }
                             }
                         });
+
+                        /****************************/
+//                        Method method = mBillListActivity.getClass().getDeclaredMethod("a", findClass("com.alipay.mobilebill.common.service.model.pb.QueryListRes", mBillListActivityClassLoader), boolean.class);
+//
+//                        if (method != null) {
+//                            XposedBridge.hookMethod(method, new XC_MethodHook() {
+//                                @Override
+//                                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                                    Activity activity = (Activity) param.thisObject;
+//                                    if (activity != null && mLastTimestamp > 0) {
+//                                        int noRecordId = FindResourceIdUtils.getFieldId("com.alipay.mobile.bill.list", "id", "bill_list_flow_tip", mBillListActivityClassLoader);
+//                                        View noRecordView = activity.findViewById(noRecordId);
+//                                        if (noRecordView != null && noRecordView.getVisibility() == View.VISIBLE) {
+//                                            log("------" + "用户账单数据为空" + "-----------");
+//                                        } else {
+//                                            boolean isCanLoadMore = (boolean) callMethod(param.thisObject, AliParamUtils.mBillListCanLoadMoreMethodName);
+//                                            boolean isFromCache = (boolean) param.args[1];
+//                                            log("------" + isCanLoadMore + " " + isFromCache + "-----------");
+//                                            if (!(isCanLoadMore || isFromCache)) {
+//                                                log("------没有更多数据了，到底了");
+//                                            }
+//                                        }
+//
+//                                    }
+//                                }
+//                            });
+//                        }
+                        /*****************************************************/
                     }
                 }
             });
@@ -382,15 +420,15 @@ public class Main implements IXposedHookLoadPackage {
             String data = JSON.toJSONString(dataBeanList);
             log("data ============ " + data);
             Intent broadCastIntent = new Intent();
-            log("222222222222222222222222222222222222222222");
+//            log("222222222222222222222222222222222222222222");
             broadCastIntent.putExtra("sumitData", data);
-            log("333333333333333333333333333333333333333333333333333");
+//            log("333333333333333333333333333333333333333333333333333");
             broadCastIntent.setAction(AlipayBroadcast.Alipay_Pay_Account);
-            log("44444444444444444444444444444444444");
+//            log("44444444444444444444444444444444444");
 //            Activity activity = (Activity) param.thisObject;
-            log("55555555555555555555555555555555555555555");
+//            log("55555555555555555555555555555555555555555");
             activity.sendBroadcast(broadCastIntent);
-            log("66666666666666666666666666666666666666");
+//            log("66666666666666666666666666666666666666");
 //            EventBus.getDefault().post(new PayMentDataEvent(data));
         }
 

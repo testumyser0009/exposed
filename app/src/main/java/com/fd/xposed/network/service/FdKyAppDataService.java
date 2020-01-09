@@ -1,6 +1,7 @@
 package com.fd.xposed.network.service;
 
 import com.fd.xposed.bean.LoginBean;
+import com.fd.xposed.bean.PingResponse;
 import com.fd.xposed.bean.SubmitResponse;
 
 import io.reactivex.Observable;
@@ -22,13 +23,13 @@ public interface FdKyAppDataService {
                                 @Query("account") String account,
                                 @Query("password") String password);
 
-//    /*心跳接口*/
-////    @Headers({"url_name:base_host","Content-Type:application/json; charset=utf-8"})
-//    @Headers({"url_name:base_host"})
-//    @POST("api/device/ping")
-//    Observable<PingResponse> ping(@Query("code_id") String code_id,
-//                                  @Query("bank_id") String bank_id,
-//                                  @Query("token") String token);
+    /*心跳接口*/
+//    @Headers({"url_name:base_host","Content-Type:application/json; charset=utf-8"})
+    @Headers({"url_name:base_host"})
+    @POST("api/device/ping")
+    Observable<PingResponse> ping(@Query("code_id") String code_id,
+                                  @Query("bank_id") String bank_id,
+                                  @Query("token") String token);
 //
 //
     /*账单数据提交*/

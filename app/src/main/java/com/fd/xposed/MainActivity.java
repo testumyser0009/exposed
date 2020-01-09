@@ -10,10 +10,12 @@ import android.widget.Button;
 import android.widget.Toast;
 
 
+import com.fd.xposed.bean.PingResponse;
 import com.fd.xposed.bean.SubmitResponse;
 import com.fd.xposed.broadcast.SubmitDataBroadcast;
 import com.fd.xposed.event.PayMentDataEvent;
 import com.fd.xposed.network.repository.FdKyAppDataRepository;
+import com.fd.xposed.ui.LoginActivity;
 import com.fd.xposed.util.Constant;
 import com.fd.xposed.util.SPUtils;
 import com.fd.xposed.xposed.boradcast.AlipayBroadcast;
@@ -23,9 +25,15 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.fd.xposed.broadcast.SubmitDataBroadcast.submitData;
@@ -37,6 +45,11 @@ public class MainActivity extends AppCompatActivity {
     private Button mGetCookieButton;
     private Button mUploadStatus;
 
+
+    private Observable<Long> mObservable;
+
+    private Disposable disposable = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i("liunianprint", "MainActivity onCreate!");
@@ -44,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         EventBus.getDefault().register(this);
 
+
+        mObservable = Observable.interval(0, 1, TimeUnit.SECONDS);
+//        startCountDown();
+        interval(15 * 1000);
         initBroadCast();
 
 //        mShouQianButton = (Button) findViewById(R.id.shouqian);
@@ -79,6 +96,114 @@ public class MainActivity extends AppCompatActivity {
 
         mUploadStatus = findViewById(R.id.upload_status);
 
+    }
+
+    /** 每隔milliseconds毫秒后执行next操作
+     *
+     * @param milliseconds
+     */
+    public void interval(long milliseconds){
+        Observable.interval(milliseconds, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Long>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable disposable) {
+                        disposable=disposable;
+                    }
+
+                    @Override
+                    public void onNext(@NonNull Long number) {
+                        Toast.makeText(MainActivity.this, "判断是否需要重新抓取", Toast.LENGTH_SHORT).show();
+                        Ping();
+
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                        Toast.makeText(MainActivity.this, "开始采集onComplete", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    /*
+    * 心跳
+    * */
+    private void Ping () {
+        String codeId = SPUtils.getSharedStringData(ASXApplication.getAppContext(), Constant.CodeId);
+        String bankId = SPUtils.getSharedStringData(ASXApplication.getAppContext(), Constant.bankId);
+        String token = SPUtils.getSharedStringData(ASXApplication.getAppContext(), Constant.Token);
+        FdKyAppDataRepository.Ping(codeId, bankId, token)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<PingResponse>() {
+                    @Override
+                    public void accept(PingResponse pingResponse) throws Exception {
+                        if (pingResponse.getStatus().equals("0")) {
+                            Toast.makeText(MainActivity.this, pingResponse.getMessage() , Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if (pingResponse.getResult().getNeed_data().equals("1")) {
+                            Toast.makeText(MainActivity.this, "开始抓取", Toast.LENGTH_SHORT).show();
+                            Intent broadCastIntent = new Intent();
+                            broadCastIntent.setAction(AlipayBroadcast.BillPageAppRefreshBrodCast);
+                            sendBroadcast(broadCastIntent);
+                        } else {
+                            Toast.makeText(MainActivity.this, "不需要抓取", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+
+                    }
+                });
+    }
+
+    private void startCountDown () {
+        //开始倒计时
+        final int count = 15;//倒计时3秒id_close_video_audio_tips
+        mObservable.take(count + 1)//限制发射次数（因为倒计时要显示 3 2 1 0 四个数字）
+                //使用map将数字转换，这里aLong是从0开始增长的,所以减去aLong就会输出3 2 1 0这种样式
+                .map(new Function<Long, Long>() {
+                    @Override
+                    public Long apply(Long aLong) throws Exception {
+                        return count - aLong;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Long>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        disposable = d;
+                    }
+
+                    @Override
+                    public void onNext(Long num) {
+                        //接收到消息，这里需要判空，因为3秒倒计时中间如果页面结束了，会造成找不到 tvAdCountDown
+                        Toast.makeText(MainActivity.this, "离下次抓取倒计时:" + num, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Intent broadCastIntent = new Intent();
+                        broadCastIntent.setAction(AlipayBroadcast.BillPageAppRefreshBrodCast);
+                        sendBroadcast(broadCastIntent);
+                        startCountDown();
+                    }
+                });
     }
 
     private SubmitDataBroadcast submitDataBroadcast;
@@ -148,5 +273,9 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
         this.unregisterReceiver(submitDataBroadcast);
+        if (null != disposable && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
+
     }
 }

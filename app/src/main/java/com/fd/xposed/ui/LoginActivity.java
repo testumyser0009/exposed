@@ -72,6 +72,10 @@ public class LoginActivity extends Activity {
                 .subscribe(new Consumer<LoginBean>() {
                     @Override
                     public void accept(LoginBean loginBean) throws Exception {
+                        if (loginBean.getStatus().equals("0")) {
+                            Toast.makeText(LoginActivity.this, loginBean.getMessage() , Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         int a = 5;
                         SPUtils.setSharedStringData(LoginActivity.this, Constant.CodeId, loginBean.getResult().getData().getCode_id());
                         SPUtils.setSharedStringData(LoginActivity.this, Constant.bankId, loginBean.getResult().getData().getBank_id());
