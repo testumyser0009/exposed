@@ -29,6 +29,7 @@ public class LoginActivity extends Activity {
     private boolean m_b_isRememberPwd;
     private EditText m_account_et;
     private EditText m_password_et;
+    private EditText m_deviceId_et;
     private Button m_btn_login;
 //    private SwitchButton switchButton;
     @Override
@@ -37,6 +38,7 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.login_layout);
         m_account_et = this.findViewById(R.id.id_login_layout_loginname);
         m_password_et = this.findViewById(R.id.id_login_layout_password);
+        m_deviceId_et = this.findViewById(R.id.id_login_device_id_password);
         m_btn_login = findViewById(R.id.login_btn);
         m_btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,10 +65,15 @@ public class LoginActivity extends Activity {
             Toast.makeText(this, "密码不能为空", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (m_deviceId_et.getText().toString().equals("")) {
+            Toast.makeText(this, "设备Id不能为空", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         LoadingDialog1.showDialogForLoading(this);
 
         FdKyAppDataRepository.Login(m_account_et.getText().toString(),
-                m_password_et.getText().toString(), "3349")
+                m_password_et.getText().toString(), m_deviceId_et.getText().toString())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<LoginBean>() {
