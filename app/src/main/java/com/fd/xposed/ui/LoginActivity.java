@@ -72,6 +72,7 @@ public class LoginActivity extends Activity {
                 .subscribe(new Consumer<LoginBean>() {
                     @Override
                     public void accept(LoginBean loginBean) throws Exception {
+                        LoadingDialog1.cancelDialogForLoading();
                         if (loginBean.getStatus().equals("0")) {
                             Toast.makeText(LoginActivity.this, loginBean.getMessage() , Toast.LENGTH_SHORT).show();
                             return;
@@ -80,7 +81,6 @@ public class LoginActivity extends Activity {
                         SPUtils.setSharedStringData(LoginActivity.this, Constant.CodeId, loginBean.getResult().getData().getCode_id());
                         SPUtils.setSharedStringData(LoginActivity.this, Constant.bankId, loginBean.getResult().getData().getBank_id());
                         SPUtils.setSharedStringData(LoginActivity.this, Constant.Token, loginBean.getResult().getToken());
-                        LoadingDialog1.cancelDialogForLoading();
                         Intent intent = new Intent();
                         intent.setClass(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
