@@ -8,7 +8,8 @@ public class ApiConstants {
 
 //    public static final String GankHost = "https://gank.io/";
     /*测试环境*/
-    public static final String GankHost = "http://72.167.224.114:82/";
+//    public static final String GankHost = "http://72.167.224.114:82/";
+    public static final String GankHost = "http://aa.sviptb.com/";
 
     /*生产环境*/
 //    public static final String GankHost = "http://60.167.239.115:8093/";
